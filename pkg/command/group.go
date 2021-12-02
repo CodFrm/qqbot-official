@@ -13,20 +13,20 @@ func newGroup() *Group {
 }
 
 func (g *Group) handle(ctx *Context) {
+	isAborted := false
 	for _, v := range g.handler {
 		v(ctx)
 		if ctx.IsAborted() {
+			isAborted = true
 			break
 		}
 	}
-	if ctx.IsAborted() {
+	if isAborted {
+		ctx.isAborted = false
 		return
 	}
 	for _, v := range g.group {
 		v.handle(ctx)
-		if ctx.IsAborted() {
-			break
-		}
 	}
 }
 
@@ -43,14 +43,14 @@ func (g *Group) Group(handler ...HandlerFunc) *Group {
 
 // Match 命令 [参数1] [参数2]
 func (g *Group) Match(command string, handler ...HandlerFunc) {
-	g.handler = append(append(g.handler, Match(command)), handler...)
+	g.Group(append([]HandlerFunc{Match(command)}, handler...)...)
 }
 
 // AtMeMatch Match 命令 [参数1] [参数2]
 func (g *Group) AtMeMatch(command string, handler ...HandlerFunc) {
-	g.handler = append(append(g.handler, AtMe()), handler...)
+	g.Group(append([]HandlerFunc{AtMe(), Match(command)}, handler...)...)
 }
 
 func (g *Group) AtMe(handler ...HandlerFunc) {
-	g.handler = append(append(g.handler, AtMe()), handler...)
+	g.Group(append([]HandlerFunc{AtMe()}, handler...)...)
 }

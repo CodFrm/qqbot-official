@@ -9,6 +9,7 @@ import (
 	"github.com/CodFrm/qqbot-official/internal/middleware"
 	"github.com/CodFrm/qqbot-official/pkg/command"
 	"github.com/CodFrm/qqbot-official/pkg/guild"
+	"github.com/sirupsen/logrus"
 	"github.com/tencent-connect/botgo/dto"
 )
 
@@ -76,11 +77,13 @@ func (p *punish) punish(ctx *command.Context) {
 
 func (p *punish) Register(ctx context.Context, cmd *command.Command) {
 	cg := cmd.Group(middleware.Member(func(m *dto.Member) (bool, error) {
-		if len(m.Roles) == 0 {
-			return false, nil
+		logrus.Infof("user: %v role: %v", m.Nick, m.Roles)
+		for _, v := range m.Roles {
+			if v == "4" || v == "2" || v == "5" {
+				return true, nil
+			}
 		}
-		fmt.Println(m.Roles)
-		return true, nil
+		return false, nil
 	}))
 	cg.Match("警告", p.punish)
 }

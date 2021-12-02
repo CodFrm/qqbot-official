@@ -3,6 +3,7 @@ package db
 import (
 	"encoding/binary"
 	"encoding/json"
+	"reflect"
 
 	"github.com/xujiajun/nutsdb"
 )
@@ -80,8 +81,22 @@ func GetOrSet(key string, get interface{}, set func() (interface{}, error), ttl 
 		if err := Put(key, b, ttl); err != nil {
 			return err
 		}
+		copyInterface(get, val)
 	} else {
 		return json.Unmarshal(b, get)
 	}
 	return nil
+}
+
+func copyInterface(dst interface{}, src interface{}) {
+	dstof := reflect.ValueOf(dst)
+	if dstof.Kind() == reflect.Ptr {
+		el := dstof.Elem()
+		srcof := reflect.ValueOf(src)
+		if srcof.Kind() == reflect.Ptr {
+			el.Set(srcof.Elem())
+		} else {
+			el.Set(srcof)
+		}
+	}
 }
