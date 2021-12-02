@@ -3,6 +3,7 @@ package command
 import (
 	"context"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/tencent-connect/botgo/dto"
 	"github.com/tencent-connect/botgo/openapi"
@@ -53,12 +54,13 @@ func (c *Context) ReplayText(content string) {
 }
 
 func (c *Context) Error(err error) {
-	if _, err := c.api.PostMessage(c.ctx, c.Message.Channel(), &dto.MessageToCreate{
-		Content: "<@!" + c.Message.User() + ">" + err.Error(),
-		MsgID:   c.Message.ID,
-	}); err != nil {
-		logrus.Errorf("post message: %v", err)
-	}
+	logrus.Errorf("handle error: %+v", errors.WithStack(err))
+	//if _, err := c.api.PostMessage(c.ctx, c.Message.Channel(), &dto.MessageToCreate{
+	//	Content: "<@!" + c.Message.User() + ">" + err.Error(),
+	//	MsgID:   c.Message.ID,
+	//}); err != nil {
+	//	logrus.Errorf("post message: %v", err)
+	//}
 	c.Abort()
 }
 
@@ -75,4 +77,17 @@ func (c *Context) OpenApi() openapi.OpenAPI {
 
 func (c *Context) GuildMember() (*dto.Member, error) {
 	return c.api.GuildMember(context.Background(), c.Message.Guild(), c.Message.User())
+}
+
+func (c *Context) Guild() (*dto.Guild, error) {
+	return c.api.Guild(context.Background(), c.Message.Guild())
+}
+
+func (c *Context) IsAtMe() bool {
+	for _, v := range c.Message.Mentions() {
+		if v.ID == c.bot.ID {
+			return true
+		}
+	}
+	return false
 }

@@ -2,7 +2,6 @@ package command
 
 import (
 	"regexp"
-	"strings"
 )
 
 type HandlerFunc func(ctx *Context)
@@ -36,7 +35,7 @@ func Match(command string) HandlerFunc {
 
 func AtMe() HandlerFunc {
 	return func(ctx *Context) {
-		if strings.Index(ctx.Message.Context(), "<@!"+ctx.bot.ID+">") == -1 {
+		if !ctx.IsAtMe() {
 			ctx.Abort()
 		}
 	}

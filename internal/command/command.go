@@ -22,3 +22,9 @@ func InitCommand(command *command.Command) {
 
 	Registers(context.Background(), command, punish)
 }
+
+func atReplay(c *command.Context, content string) {
+	if c.IsAtMe() {
+		c.ReplayText(content)
+	}
+}
