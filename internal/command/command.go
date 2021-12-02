@@ -20,7 +20,10 @@ func InitCommand(command *command.Command) {
 
 	punish := NewPunish()
 
-	Registers(context.Background(), command, punish)
+	Registers(context.Background(), command,
+		punish,
+		NewUtils(),
+	)
 }
 
 func atReplay(c *command.Context, content string) {
