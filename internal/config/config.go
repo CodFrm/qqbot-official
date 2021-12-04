@@ -9,6 +9,8 @@ import (
 type Config struct {
 	AppID       uint64 `yaml:"appId"`
 	AccessToken string `yaml:"accessToken"`
+	WebPort     string `yaml:"webPort"`
+	MsgUrl      string `yaml:"msgUrl"`
 }
 
 var AppConfig Config

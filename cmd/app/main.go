@@ -8,6 +8,7 @@ import (
 	command2 "github.com/CodFrm/qqbot-official/internal/command"
 	"github.com/CodFrm/qqbot-official/internal/config"
 	"github.com/CodFrm/qqbot-official/internal/db"
+	"github.com/CodFrm/qqbot-official/internal/http"
 	"github.com/CodFrm/qqbot-official/pkg/command"
 	"github.com/tencent-connect/botgo"
 	"github.com/tencent-connect/botgo/dto"
@@ -42,10 +43,16 @@ func main() {
 	command2.InitCommand(command)
 
 	// 监听哪类事件就需要实现哪类的 handler，定义：websocket/event_handler.go
-	var atMessage websocket.MessageEventHandler = func(event *dto.WSPayload, data *dto.WSMessageData) error {
+	var message websocket.MessageEventHandler = func(event *dto.WSPayload, data *dto.WSMessageData) error {
 		return command.MessageHandler((*dto.Message)(data))
 	}
-	intent := websocket.RegisterHandlers(atMessage)
+
+	intent := websocket.RegisterHandlers(message)
+	go func() {
+		if err := http.StartWeb(api); err != nil {
+			log.Fatalf("start web: %v", err)
+		}
+	}()
 	// 启动 session manager 进行 ws 连接的管理，如果接口返回需要启动多个 shard 的连接，这里也会自动启动多个
 	if err := botgo.NewSessionManager().Start(ws, token, &intent); err != nil {
 		log.Fatalf("start: %v", err)

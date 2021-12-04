@@ -14,7 +14,7 @@ cg.Match("移除警告", p.remove)
 
 // 匹配艾特命令+摇色子
 cmd.AtMeMatch("摇色子|摇骰子", func(ctx *command.Context) {
-    ctx.ReplayText(fmt.Sprintf("%v", rand.Int31n(6)+1))
+    ctx.ReplyText(fmt.Sprintf("%v", rand.Int31n(6)+1))
 })
 
 ```

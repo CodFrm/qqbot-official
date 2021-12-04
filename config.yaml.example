@@ -1,4 +1,8 @@
-
+# 机器人appId
 appId: 123
-
+# 机器人token
 accessToken: token
+# 某些功能需要网页服务,网页监听的api
+webPort: :8080
+# 配置的消息url
+msgUrl: http://www.ok.com/redirect

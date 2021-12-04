@@ -3,12 +3,14 @@ package command
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/CodFrm/qqbot-official/internal/db"
 	"github.com/CodFrm/qqbot-official/internal/middleware"
+	utils2 "github.com/CodFrm/qqbot-official/internal/utils"
+	"github.com/CodFrm/qqbot-official/internal/utils/api"
 	"github.com/CodFrm/qqbot-official/pkg/command"
-	"github.com/CodFrm/qqbot-official/pkg/guild"
 	"github.com/sirupsen/logrus"
 	"github.com/tencent-connect/botgo/dto"
 )
@@ -24,19 +26,19 @@ func (p *punish) punish(ctx *command.Context) {
 	member := ""
 	num, err := db.Incr("guild:punish:user:num:"+time.Now().Format("2006:01:02")+":"+ctx.Message.User(), int64(len(ctx.Message.Mentions())), 3600*24)
 	if err != nil {
-		ctx.ReplayText(err.Error())
+		ctx.ReplyText(err.Error())
 		return
 	}
 	if num > 40 {
-		ctx.ReplayText("今天已经处理够多人了")
+		ctx.ReplyText("今天已经处理够多人了")
 		return
 	}
-	for _, v := range ctx.Message.Mentions() {
-		if v.ID == ctx.Bot().ID || v.ID == ctx.Message.User() {
+	for _, user := range ctx.Message.Mentions() {
+		if user.ID == ctx.Bot().ID || user.ID == ctx.Message.User() {
 			continue
 		}
-		num, err := db.Incr(fmt.Sprintf("guild:punish:%v:%v", ctx.Message.Guild(), v.ID), 1, 604800)
-		member += guild.At(v.ID)
+		num, err := db.Incr(fmt.Sprintf("guild:punish:%v:%v", ctx.Message.Guild(), user.ID), 1, 604800)
+		member += utils2.At(user.ID)
 		if err != nil {
 			member += "错误:" + err.Error() + "\n"
 			continue
@@ -44,9 +46,32 @@ func (p *punish) punish(ctx *command.Context) {
 		switch num {
 		case 1:
 			member += "警告一次"
+			var punishRole *dto.Role
+			roles, err := api.NewGuildApi(ctx.OpenApi()).UserGroup(ctx.Message.Guild())
+			if err != nil {
+				member += " " + err.Error()
+			} else {
+				for _, role := range roles {
+					if strings.Index(role.Name, "警告") != -1 {
+						punishRole = role
+						break
+					}
+				}
+				if err := api.NewGuildApi(ctx.OpenApi()).SetSignalRole(ctx.Message.Guild(), user.ID, punishRole.ID); err != nil {
+					member += " " + err.Error()
+				} else {
+					member += "并设置" + punishRole.Name + "用户组"
+				}
+				break
+			}
+			if err := api.NewGuildApi(ctx.OpenApi()).SetSignalRole(ctx.Message.Guild(), user.ID, punishRole.ID); err != nil {
+				member += " " + err.Error()
+			} else {
+				member += "并移除所有用户组"
+			}
 		case 2:
 			member += "踢出频道"
-			if err := ctx.OpenApi().DeleteGuildMember(context.Background(), ctx.Message.Guild(), v.ID); err != nil {
+			if err := ctx.OpenApi().DeleteGuildMember(context.Background(), ctx.Message.Guild(), user.ID); err != nil {
 				member += " " + err.Error()
 			}
 		case 3:
@@ -55,24 +80,24 @@ func (p *punish) punish(ctx *command.Context) {
 			if err != nil {
 				member += " " + err.Error()
 			} else {
-				member += guild.At(g.OwnerID)
+				member += utils2.At(g.OwnerID)
 			}
 		default:
 			g, err := ctx.Guild()
 			if err != nil {
 				member += err.Error()
 			} else {
-				if g.OwnerID == v.ID {
+				if g.OwnerID == user.ID {
 					member += "这人咋还在？请求最高权限:"
 				} else {
 					member += "这人咋还在？请求最高权限:"
 				}
-				member += guild.At(g.OwnerID)
+				member += utils2.At(g.OwnerID)
 			}
 		}
 		member += "\n"
 	}
-	atReplay(ctx, guild.At(ctx.Message.User())+"对以下成员做出处理:\n"+member)
+	atReplay(ctx, utils2.At(ctx.Message.User())+"对以下成员做出处理:\n"+member)
 }
 
 func (p *punish) Register(ctx context.Context, cmd *command.Command) {
@@ -85,5 +110,5 @@ func (p *punish) Register(ctx context.Context, cmd *command.Command) {
 		}
 		return false, nil
 	}))
-	cg.Match("警告", p.punish)
+	cg.AtMeMatch("警告", p.punish)
 }

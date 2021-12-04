@@ -44,7 +44,7 @@ func (c *Context) Abort() {
 	c.isAborted = true
 }
 
-func (c *Context) ReplayText(content string) {
+func (c *Context) ReplyText(content string) {
 	if _, err := c.api.PostMessage(c.ctx, c.Message.Channel(), &dto.MessageToCreate{
 		Content: "<@!" + c.Message.User() + ">" + content,
 		MsgID:   c.Message.ID,
@@ -90,4 +90,14 @@ func (c *Context) IsAtMe() bool {
 		}
 	}
 	return false
+}
+
+func (c *Context) ReplyArk(ark *dto.Ark) {
+	_, err := c.api.PostMessage(c.ctx, c.Message.Channel(), &dto.MessageToCreate{
+		Ark:   ark,
+		MsgID: c.Message.ID,
+	})
+	if err != nil {
+		logrus.Errorf("post message: %v", err)
+	}
 }

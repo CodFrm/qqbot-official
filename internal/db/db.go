@@ -1,10 +1,11 @@
 package db
 
 import (
-	"encoding/binary"
 	"encoding/json"
 	"reflect"
+	"strconv"
 
+	"github.com/CodFrm/qqbot/utils"
 	"github.com/xujiajun/nutsdb"
 )
 
@@ -25,6 +26,9 @@ func Get(key string) ([]byte, error) {
 	if err := db.View(func(tx *nutsdb.Tx) error {
 		e, err := tx.Get(MainBucket, []byte(key))
 		if err != nil {
+			if err == nutsdb.ErrKeyNotFound {
+				return nil
+			}
 			return err
 		}
 		val = e.Value
@@ -48,6 +52,15 @@ func Put(key string, val []byte, ttl uint32) error {
 	return nil
 }
 
+func Del(key string) error {
+	if err := db.Update(func(tx *nutsdb.Tx) error {
+		return tx.Delete(MainBucket, []byte(key))
+	}); err != nil {
+		return err
+	}
+	return nil
+}
+
 func Incr(key string, num int64, ttl uint32) (int64, error) {
 	var val int64
 	if err := db.Update(func(tx *nutsdb.Tx) error {
@@ -55,12 +68,10 @@ func Incr(key string, num int64, ttl uint32) (int64, error) {
 		if err != nil {
 			val = 0
 		} else {
-			val, _ = binary.Varint(e.Value)
+			val = utils.StringToInt64(string(e.Value))
 		}
-		b := make([]byte, binary.MaxVarintLen64)
 		val = val + num
-		binary.PutVarint(b, val)
-		return tx.Put(MainBucket, []byte(key), b, ttl)
+		return tx.Put(MainBucket, []byte(key), []byte(strconv.FormatInt(val, 10)), ttl)
 	}); err != nil {
 		return 0, err
 	}
@@ -69,7 +80,7 @@ func Incr(key string, num int64, ttl uint32) (int64, error) {
 
 func GetOrSet(key string, get interface{}, set func() (interface{}, error), ttl uint32) error {
 	b, err := Get(key)
-	if err != nil {
+	if err != nil || b == nil {
 		val, err := set()
 		if err != nil {
 			return err

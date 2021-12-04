@@ -3,6 +3,7 @@ package command
 import (
 	"context"
 
+	"github.com/CodFrm/qqbot-official/internal/service"
 	"github.com/CodFrm/qqbot-official/pkg/command"
 )
 
@@ -18,16 +19,17 @@ func Registers(ctx context.Context, command *command.Command, reg ...Register) {
 
 func InitCommand(command *command.Command) {
 
-	punish := NewPunish()
+	punishSvc := service.NewPunish()
 
 	Registers(context.Background(), command,
-		punish,
+		NewPunish(),
+		newIdentity(punishSvc),
 		NewUtils(),
 	)
 }
 
 func atReplay(c *command.Context, content string) {
 	if c.IsAtMe() {
-		c.ReplayText(content)
+		c.ReplyText(content)
 	}
 }
