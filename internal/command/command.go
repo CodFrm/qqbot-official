@@ -5,6 +5,7 @@ import (
 
 	"github.com/CodFrm/qqbot-official/internal/service"
 	"github.com/CodFrm/qqbot-official/pkg/command"
+	"github.com/robfig/cron/v3"
 )
 
 type Register interface {
@@ -19,11 +20,16 @@ func Registers(ctx context.Context, command *command.Command, reg ...Register) {
 
 func InitCommand(command *command.Command) {
 
+	c := cron.New()
+
 	punishSvc := service.NewPunish()
+	userSvc := service.NewUser()
+	clockinSvc := service.NewClockIn(c, userSvc)
 
 	Registers(context.Background(), command,
 		NewPunish(),
-		newIdentity(punishSvc),
+		newUser(userSvc, punishSvc),
+		NewClockIn(clockinSvc, userSvc),
 		NewUtils(),
 	)
 }

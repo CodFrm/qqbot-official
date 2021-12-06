@@ -13,16 +13,22 @@ import (
 	"github.com/tencent-connect/botgo/dto"
 )
 
-type identity struct {
+type user struct {
+	svc    service.User
 	punish service.Punish
 }
 
-func newIdentity(punish service.Punish) *identity {
-	return &identity{punish: punish}
+func newUser(svc service.User, punish service.Punish) *user {
+	return &user{svc: svc, punish: punish}
 }
 
-func (i *identity) info(c *command.Context) {
+func (i *user) info(c *command.Context) {
 	punishLevel, err := i.punish.PunishLevel(c.Message.Guild(), c.Message.User())
+	if err != nil {
+		c.ReplyText(err.Error())
+		return
+	}
+	integral, err := i.svc.Integral(c.Message.User(), c.Message.User())
 	if err != nil {
 		c.ReplyText(err.Error())
 		return
@@ -34,7 +40,11 @@ func (i *identity) info(c *command.Context) {
 			},
 		}, {
 			ObjKV: []*dto.ArkObjKV{
-				{Key: "desc", Value: "警告等级:" + strconv.FormatInt(punishLevel, 10) + " 用户id:" + c.Message.User()},
+				{Key: "desc", Value: "用户积分:" + strconv.FormatInt(integral, 10) + " 用户id:" + c.Message.User()},
+			},
+		}, {
+			ObjKV: []*dto.ArkObjKV{
+				{Key: "desc", Value: "警告等级:" + strconv.FormatInt(punishLevel, 10)},
 			},
 		},
 	}
@@ -89,7 +99,7 @@ func (i *identity) info(c *command.Context) {
 	})
 }
 
-func (i *identity) Register(ctx context.Context, cmd *command.Command) {
+func (i *user) Register(ctx context.Context, cmd *command.Command) {
 	cg := cmd.Group(command.AtMe())
 	cg.Match("我的信息", i.info)
 }

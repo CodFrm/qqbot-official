@@ -21,6 +21,36 @@ func InitDatabase() error {
 	return err
 }
 
+func SGetAll(key string) ([][]byte, error) {
+	var ret [][]byte
+	if err := db.View(func(tx *nutsdb.Tx) error {
+		list, err := tx.SMembers(MainBucket, []byte(key))
+		if err != nil {
+			if err == nutsdb.ErrKeyNotFound {
+				return nil
+			}
+			return err
+		}
+		ret = list
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
+func SAdd(key string, member []byte) error {
+	return db.Update(func(tx *nutsdb.Tx) error {
+		return tx.SAdd(MainBucket, []byte(key), member)
+	})
+}
+
+func SRem(key string, member []byte) error {
+	return db.Update(func(tx *nutsdb.Tx) error {
+		return tx.SRem(MainBucket, []byte(key), member)
+	})
+}
+
 func Get(key string) ([]byte, error) {
 	var val []byte
 	if err := db.View(func(tx *nutsdb.Tx) error {
@@ -40,25 +70,15 @@ func Get(key string) ([]byte, error) {
 }
 
 func Put(key string, val []byte, ttl uint32) error {
-	if err := db.Update(func(tx *nutsdb.Tx) error {
-		err := tx.Put(MainBucket, []byte(key), val, ttl)
-		if err != nil {
-			return err
-		}
-		return nil
-	}); err != nil {
-		return err
-	}
-	return nil
+	return db.Update(func(tx *nutsdb.Tx) error {
+		return tx.Put(MainBucket, []byte(key), val, ttl)
+	})
 }
 
 func Del(key string) error {
-	if err := db.Update(func(tx *nutsdb.Tx) error {
+	return db.Update(func(tx *nutsdb.Tx) error {
 		return tx.Delete(MainBucket, []byte(key))
-	}); err != nil {
-		return err
-	}
-	return nil
+	})
 }
 
 func Incr(key string, num int64, ttl uint32) (int64, error) {

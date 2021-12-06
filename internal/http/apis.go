@@ -18,6 +18,10 @@ var actionMap = map[string]func(c *gin.Context){}
 func msgUrl(openapi openapi.OpenAPI) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		action := c.Query("action")
+		if action == "images" {
+			images(c)
+			return
+		}
 		session := c.Query("session")
 		user := c.Query("user")
 		if v, err := db.Get("session:" + session); err != nil {
