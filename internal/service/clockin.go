@@ -121,7 +121,7 @@ func (c *clockIn) GetUpClockIn(guild, user string) (string, error) {
 		logrus.Errorf("clockin remove sleep %s: %v", user, err)
 	}
 	if _, err := c.user.AddIntegral(guild, user, 4); err != nil {
-		logrus.Errorf("guild %s user %s add 3 integral: %v", guild, user, err)
+		logrus.Errorf("guild %s user %s add 4 integral: %v", guild, user, err)
 	}
 	return fmt.Sprintf("新的一天开始啦~您是第%d位起床者,昨晚睡了%d小时,奖励%d积分", num, (now.Unix()-utils.StringToInt64(string(val)))/3600, 4), nil
 }
@@ -139,7 +139,7 @@ func (c *clockIn) ClockIn(guild, user string) (string, error) {
 		return "", err
 	}
 	if _, err := c.user.AddIntegral(guild, user, 2); err != nil {
-		logrus.Errorf("guild %s user %s add 1 integral: %v", guild, user, err)
+		logrus.Errorf("guild %s user %s add 2 integral: %v", guild, user, err)
 	}
 	return "打卡成功,增加积分2", nil
 }

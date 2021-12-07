@@ -33,9 +33,3 @@ func InitCommand(command *command.Command) {
 		NewUtils(),
 	)
 }
-
-func atReplay(c *command.Context, content string) {
-	if c.IsAtMe() {
-		c.ReplyText(content)
-	}
-}

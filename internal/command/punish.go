@@ -113,7 +113,7 @@ func (p *punish) punish(ctx *command.Context) {
 		}
 		member += "\n"
 	}
-	atReplay(ctx, utils2.At(ctx.Message.User())+"对以下成员做出处理:\n"+member)
+	ctx.ReplyText("对以下成员做出处理:\n" + member)
 }
 
 func (p *punish) Register(ctx context.Context, cmd *command.Command) {

@@ -82,5 +82,5 @@ func (c *clockIn) Register(ctx context.Context, cmd *command.Command) {
 	cg.Match("早起打卡", c.getUp)
 	cg.Match("打卡耻辱榜", c.getUpList)
 
-	cg.Match("\\s打卡(\\s|$)", c.clockIn)
+	cg.Match("\\s打卡[\\s]?$", c.clockIn)
 }

@@ -29,7 +29,7 @@ func (i *user) info(c *command.Context) {
 		c.ReplyText(err.Error())
 		return
 	}
-	integral, err := i.svc.Integral(c.Message.User(), c.Message.User())
+	integral, err := i.svc.Integral(c.Message.Guild(), c.Message.User())
 	if err != nil {
 		c.ReplyText(err.Error())
 		return
@@ -80,7 +80,7 @@ func (i *user) info(c *command.Context) {
 		if v.Hoist == 1 {
 			continue
 		}
-		if integral < 10*int64(math.Pow(2, float64(i+1))) {
+		if integral < 10*int64(math.Pow(2, float64(i)))-10 {
 			break
 		}
 		arkList = append(arkList, &dto.ArkObj{
