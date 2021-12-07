@@ -24,7 +24,7 @@ func (c *clockIn) sleep(ctx *command.Context) {
 		ctx.ReplyText(err.Error())
 	} else {
 		ctx.ReplyArk(&dto.Ark{
-			TemplateID: 23,
+			TemplateID: 37,
 			KV: []*dto.ArkKV{
 				{Key: "#PROMPT#", Value: "打卡成功"},
 				{Key: "#METATITLE#", Value: "早睡打卡成功"},
@@ -42,7 +42,7 @@ func (c *clockIn) getUp(ctx *command.Context) {
 		return
 	}
 	ctx.ReplyArk(&dto.Ark{
-		TemplateID: 23,
+		TemplateID: 37,
 		KV: []*dto.ArkKV{
 			{Key: "#PROMPT#", Value: "打卡成功"},
 			{Key: "#METATITLE#", Value: "早起打卡成功"},

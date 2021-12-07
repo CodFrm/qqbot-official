@@ -61,7 +61,7 @@ func (c *clockIn) SleepClockIn(guild, user string) (string, error) {
 	if now.Hour() > 22 {
 		return "", errors.New("已经过点了,请在晚上10点前打卡")
 	}
-	if now.Hour() < 7 {
+	if now.Hour() < 19 {
 		return "", errors.New("天还没暗呢")
 	}
 	if err := db.Put(c.key(now, guild, user), []byte(strconv.FormatInt(time.Now().Unix(), 10)), 86400*2); err != nil {
@@ -73,7 +73,7 @@ func (c *clockIn) SleepClockIn(guild, user string) (string, error) {
 	if err := db.SAdd("clockin:guild:"+now.Format("2006/01/02"), []byte(guild)); err != nil {
 		logrus.Errorf("clockin add guild %s: %v", guild, err)
 	}
-	return fmt.Sprintf("现在是%v,早早进入梦乡吧,起床之后记得艾特猫猫早起打卡哦", now), nil
+	return fmt.Sprintf("现在是%v,早早进入梦乡吧,起床之后记得艾特猫猫早起打卡哦", now.Format("15:04")), nil
 }
 
 func (c *clockIn) GetUpClockIn(guild, user string) (string, error) {
