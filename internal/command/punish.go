@@ -37,6 +37,22 @@ func (p *punish) punish(ctx *command.Context) {
 		if user.ID == ctx.Bot().ID || user.ID == ctx.Message.User() {
 			continue
 		}
+		m, err := api.NewGuildApi(ctx.OpenApi()).GuildMember(ctx.Message.Guild(), ctx.Message.User())
+		if err != nil {
+			member += "错误:" + err.Error() + "\n"
+			continue
+		}
+		flag := false
+		for _, v := range m.Roles {
+			if v == "4" || v == "2" || v == "5" {
+				flag = true
+				break
+			}
+		}
+		if flag {
+			member += "管理员间无法警告,请反馈给频道主\n"
+			continue
+		}
 		num, err := db.Incr(fmt.Sprintf("guild:punish:%v:%v", ctx.Message.Guild(), user.ID), 1, 604800)
 		member += utils2.At(user.ID)
 		if err != nil {

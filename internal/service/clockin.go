@@ -16,6 +16,7 @@ type ClockIn interface {
 	ClockIn(guild, user string) (string, error)
 	SleepClockIn(guild, user string) (string, error)
 	GetUpClockIn(guild, user string) (string, error)
+	GetUpList(guild string) ([]string, error)
 }
 
 type clockIn struct {
@@ -50,6 +51,22 @@ func (c *clockIn) notGetup() {
 			}
 		}
 	}
+}
+
+func (c *clockIn) GetUpList(guild string) ([]string, error) {
+	now := time.Now()
+	if now.Hour() < 8 {
+		return nil, errors.New("榜单还未生成")
+	}
+	users, err := db.SGetAll("clockin:getup:member:" + now.Format("2006/01/02") + ":" + guild)
+	if err != nil {
+		return nil, err
+	}
+	var list []string
+	for _, user := range users {
+		list = append(list, string(user))
+	}
+	return list, nil
 }
 
 func (c *clockIn) key(t time.Time, guild, user string) string {

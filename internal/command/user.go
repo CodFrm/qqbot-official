@@ -2,6 +2,7 @@ package command
 
 import (
 	"context"
+	"math"
 	"strconv"
 
 	"github.com/CodFrm/qqbot-official/internal/config"
@@ -74,9 +75,13 @@ func (i *user) info(c *command.Context) {
 		return
 	}
 	list, err := api.NewGuildApi(c.OpenApi()).UserGroup(c.Message.Guild())
-	for _, v := range list {
+	for i := 0; i < len(list); i++ {
+		v := list[len(list)-i-1]
 		if v.Hoist == 1 {
 			continue
+		}
+		if integral < 10*int64(math.Pow(2, float64(i+1))) {
+			break
 		}
 		arkList = append(arkList, &dto.ArkObj{
 			ObjKV: []*dto.ArkObjKV{

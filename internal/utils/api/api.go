@@ -21,6 +21,16 @@ func (g *GuildApi) OpenApi() openapi.OpenAPI {
 	return g.api
 }
 
+func (g *GuildApi) GuildMember(guild, user string) (*dto.Member, error) {
+	var member *dto.Member
+	if err := db.GetOrSet("guild:cache:user:"+guild+":"+user, &member, func() (interface{}, error) {
+		return g.api.GuildMember(context.Background(), guild, user)
+	}, 3600); err != nil {
+		return nil, err
+	}
+	return member, nil
+}
+
 func (g *GuildApi) UserGroup(guild string) ([]*dto.Role, error) {
 	var list []*dto.Role
 	if err := db.GetOrSet("guild:cache:role:"+guild, &list, func() (interface{}, error) {

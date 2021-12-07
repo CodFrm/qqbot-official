@@ -5,6 +5,7 @@ import (
 
 	"github.com/CodFrm/qqbot-official/internal/config"
 	"github.com/CodFrm/qqbot-official/internal/service"
+	utils2 "github.com/CodFrm/qqbot-official/internal/utils"
 	"github.com/CodFrm/qqbot-official/pkg/command"
 	"github.com/tencent-connect/botgo/dto"
 )
@@ -62,10 +63,24 @@ func (c *clockIn) clockIn(ctx *command.Context) {
 	ctx.ReplyText(msg)
 }
 
+func (c *clockIn) getUpList(ctx *command.Context) {
+	list, err := c.svc.GetUpList(ctx.Message.Guild())
+	if err != nil {
+		ctx.ReplyText(err.Error())
+		return
+	}
+	msg := "以下人员未成功早起打卡:"
+	for _, v := range list {
+		msg += utils2.At(v)
+	}
+	ctx.ReplyText(msg)
+}
+
 func (c *clockIn) Register(ctx context.Context, cmd *command.Command) {
 	cg := cmd.Group(command.AtMe())
 	cg.Match("早睡打卡", c.sleep)
 	cg.Match("早起打卡", c.getUp)
+	cg.Match("打卡耻辱榜", c.getUpList)
 
-	cg.Match("\\s打卡", c.clockIn)
+	cg.Match("\\s打卡(\\s|$)", c.clockIn)
 }
