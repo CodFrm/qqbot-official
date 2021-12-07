@@ -26,7 +26,7 @@ func SGetAll(key string) ([][]byte, error) {
 	if err := db.View(func(tx *nutsdb.Tx) error {
 		list, err := tx.SMembers(MainBucket, []byte(key))
 		if err != nil {
-			if err == nutsdb.ErrBucketAndKey(MainBucket, []byte(key)) {
+			if err.Error() == nutsdb.ErrBucketAndKey(MainBucket, []byte(key)).Error() {
 				return nil
 			}
 			return err
