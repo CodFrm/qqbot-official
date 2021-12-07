@@ -66,8 +66,9 @@ func (i *user) info(c *command.Context) {
 		})
 		return
 	}
+	next := &dto.ArkObjKV{Key: "desc", Value: "下面为可申请的用户组,点击相应链接可切换用户组,下一晋级用户组为:"}
 	arkList = append(arkList, &dto.ArkObj{ObjKV: []*dto.ArkObjKV{
-		{Key: "desc", Value: "下面为可申请的用户组,点击相应链接可切换用户组"},
+		next,
 	}})
 	session := utils2.RandStringRunes(10)
 	if err := db.Put("session:"+session, []byte(c.Message.User()), 600); err != nil {
@@ -75,12 +76,15 @@ func (i *user) info(c *command.Context) {
 		return
 	}
 	list, err := api.NewGuildApi(c.OpenApi()).UserGroup(c.Message.Guild())
+	n := -1
 	for i := 0; i < len(list); i++ {
 		v := list[len(list)-i-1]
 		if v.Hoist == 1 {
 			continue
 		}
-		if integral < 10*int64(math.Pow(2, float64(i)))-10 {
+		n++
+		if integral < 10*int64(math.Pow(2, float64(n)))-10 {
+			next.Value += v.Name + " 还差:" + strconv.FormatInt(10*int64(math.Pow(2, float64(n)))-10-integral, 10) + "积分"
 			break
 		}
 		arkList = append(arkList, &dto.ArkObj{
