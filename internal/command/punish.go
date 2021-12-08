@@ -43,7 +43,7 @@ func (p *punish) punish(ctx *command.Context) {
 			member += "错误:" + err.Error() + "\n"
 			continue
 		}
-		m, err := api.NewGuildApi(ctx.OpenApi()).GuildMember(ctx.Message.Guild(), ctx.Message.User())
+		m, err := api.NewGuildApi(ctx.OpenApi()).GuildMember(ctx.Message.Guild(), user.ID)
 		if err != nil {
 			member += "错误:" + err.Error() + "\n"
 			continue

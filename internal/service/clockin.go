@@ -46,8 +46,8 @@ func (c *clockIn) notGetup() {
 			continue
 		}
 		for _, user := range users {
-			if _, err := c.user.AddIntegral(string(guild), string(user), -6); err != nil {
-				logrus.Errorf("guild %s user %s add -6 integral: %v", guild, user, err)
+			if _, err := c.user.AddIntegral(string(guild), string(user), -3); err != nil {
+				logrus.Errorf("guild %s user %s add -3 integral: %v", guild, user, err)
 			}
 		}
 	}
@@ -58,7 +58,7 @@ func (c *clockIn) GetUpList(guild string) ([]string, error) {
 	if now.Hour() < 8 {
 		return nil, errors.New("榜单还未生成")
 	}
-	users, err := db.SGetAll("clockin:getup:member:" + now.Format("2006/01/02") + ":" + guild)
+	users, err := db.SGetAll("clockin:getup:member:" + now.Add(-time.Hour*24).Format("2006/01/02") + ":" + guild)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func (c *clockIn) GetUpClockIn(guild, user string) (string, error) {
 		return "", errors.New("昨天没有参与打卡")
 	}
 	if now.Hour() > 8 {
-		return "", errors.New("已经过点了,扣除6积分!")
+		return "", errors.New("已经过点了,扣除3积分!")
 	}
 	err = db.Put(fmt.Sprintf("clockin:getup:days:%s:%s:%s", time.Now().Format("2006/01/02"), guild, user), []byte("1"), 86400*2)
 	if err != nil {
@@ -120,10 +120,10 @@ func (c *clockIn) GetUpClockIn(guild, user string) (string, error) {
 	if err := db.SRem("clockin:getup:member:"+now.Add(-time.Hour*24).Format("2006/01/02")+":"+guild, []byte(user)); err != nil {
 		logrus.Errorf("clockin remove sleep %s: %v", user, err)
 	}
-	if _, err := c.user.AddIntegral(guild, user, 4); err != nil {
-		logrus.Errorf("guild %s user %s add 4 integral: %v", guild, user, err)
+	if _, err := c.user.AddIntegral(guild, user, 6); err != nil {
+		logrus.Errorf("guild %s user %s add 6 integral: %v", guild, user, err)
 	}
-	return fmt.Sprintf("新的一天开始啦~您是第%d位起床者,昨晚睡了%d小时,奖励%d积分", num, (now.Unix()-utils.StringToInt64(string(val)))/3600, 4), nil
+	return fmt.Sprintf("新的一天开始啦~您是第%d位起床者,昨晚睡了%d小时,奖励%d积分", num, (now.Unix()-utils.StringToInt64(string(val)))/3600, 6), nil
 }
 
 func (c *clockIn) ClockIn(guild, user string) (string, error) {
