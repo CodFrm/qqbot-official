@@ -61,6 +61,7 @@ func (p *punish) punish(ctx *command.Context) {
 		}
 		switch num {
 		case 1:
+		case 2:
 			member += "警告一次"
 			var punishRole *dto.Role
 			roles, err := api.NewGuildApi(ctx.OpenApi()).UserGroup(ctx.Message.Guild())
@@ -85,12 +86,12 @@ func (p *punish) punish(ctx *command.Context) {
 			} else {
 				member += "并移除所有用户组"
 			}
-		case 2:
+		case 3:
 			member += "踢出频道"
 			if err := ctx.OpenApi().DeleteGuildMember(context.Background(), ctx.Message.Guild(), user.ID); err != nil {
 				member += " " + err.Error()
 			}
-		case 3:
+		case 4:
 			member += "拉黑此人(暂时需要管理员手动操作拉黑)"
 			g, err := ctx.Guild()
 			if err != nil {
