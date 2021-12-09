@@ -77,6 +77,7 @@ func (i *user) info(c *command.Context) {
 	}
 	list, err := api.NewGuildApi(c.OpenApi()).UserGroup(c.Message.Guild())
 	n := -1
+	var userList []*dto.ArkObj
 	for i := 0; i < len(list); i++ {
 		v := list[len(list)-i-1]
 		if v.Hoist == 1 {
@@ -87,14 +88,15 @@ func (i *user) info(c *command.Context) {
 			next.Value += v.Name + " 还差:" + strconv.FormatInt(10*int64(math.Pow(2, float64(n)))-10-integral, 10) + "积分"
 			break
 		}
-		arkList = append(arkList, &dto.ArkObj{
+		userList = append([]*dto.ArkObj{{
 			ObjKV: []*dto.ArkObjKV{
 				{Key: "desc", Value: v.Name},
 				{Key: "link", Value: config.AppConfig.MsgUrl + "?action=setUserRole&session=" +
 					session + "&guild=" + c.Message.Guild() + "&user=" + c.Message.User() + "&role=" + string(v.ID)},
 			},
-		})
+		}}, userList...)
 	}
+	arkList = append(arkList, userList...)
 	c.ReplyArk(&dto.Ark{
 		TemplateID: 23,
 		KV: []*dto.ArkKV{

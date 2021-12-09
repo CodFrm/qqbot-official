@@ -25,7 +25,7 @@ func msgUrl(openapi openapi.OpenAPI) func(c *gin.Context) {
 		session := c.Query("session")
 		user := c.Query("user")
 		if v, err := db.Get("session:" + session); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"msg": "该链接已经点过啦"})
 			return
 		} else if v == nil || string(v) != user {
 			c.JSON(http.StatusBadRequest, gin.H{"msg": "错误链接"})

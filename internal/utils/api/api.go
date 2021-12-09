@@ -67,7 +67,7 @@ func (g *GuildApi) SetSignalRole(guild, user string, role dto.RoleID) error {
 			g.api.MemberDeleteRole(context.Background(), guild, dto.RoleID(v), user, nil)
 		}
 	}
-	if role == "" {
+	if role == "" || role == "1" {
 		return nil
 	}
 	return g.api.MemberAddRole(context.Background(), guild, role, user, nil)
