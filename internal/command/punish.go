@@ -60,8 +60,7 @@ func (p *punish) punish(ctx *command.Context) {
 			continue
 		}
 		switch num {
-		case 1:
-		case 2:
+		case 1, 2:
 			member += "警告一次"
 			var punishRole *dto.Role
 			roles, err := api.NewGuildApi(ctx.OpenApi()).UserGroup(ctx.Message.Guild())
