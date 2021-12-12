@@ -110,6 +110,9 @@ func (c *clockIn) GetUpClockIn(guild, user string) (string, error) {
 		return "", errors.New("昨天没有参与打卡")
 	}
 	if now.Hour() > 8 {
+		if err := db.SRem("clockin:getup:member:"+now.Add(-time.Hour*24).Format("2006/01/02")+":"+guild, []byte(user)); err != nil {
+			logrus.Errorf("clockin remove sleep %s: %v", user, err)
+		}
 		return "", errors.New("已经过点了,扣除3积分!")
 	}
 	err = db.Put(fmt.Sprintf("clockin:getup:days:%s:%s:%s", time.Now().Format("2006/01/02"), guild, user), []byte("1"), 86400*2)
