@@ -2,12 +2,12 @@ package command
 
 import (
 	"context"
-
 	"github.com/CodFrm/qqbot-official/internal/config"
 	"github.com/CodFrm/qqbot-official/internal/service"
 	utils2 "github.com/CodFrm/qqbot-official/internal/utils"
 	"github.com/CodFrm/qqbot-official/pkg/command"
 	"github.com/tencent-connect/botgo/dto"
+	"time"
 )
 
 type clockIn struct {
@@ -37,21 +37,48 @@ func (c *clockIn) sleep(ctx *command.Context) {
 }
 
 func (c *clockIn) getUp(ctx *command.Context) {
-	msg, err := c.svc.GetUpClockIn(ctx.Message.Guild(), ctx.Message.User())
-	if err != nil {
-		ctx.ReplyText(err.Error())
-		return
+	now := time.Now()
+	if now.Hour() == 7 && now.Minute() >= 30 {
+		msg, err := c.svc.GetUpClockIn(ctx.Message.Guild(), ctx.Message.User())
+		if err != nil {
+			ctx.ReplyText(err.Error())
+			return
+		}
+		ctx.ReplyArk(&dto.Ark{
+			TemplateID: 37,
+			KV: []*dto.ArkKV{
+				{Key: "#PROMPT#", Value: "打卡成功"},
+				{Key: "#METATITLE#", Value: "早起打卡成功"},
+				//{Key: "#METASUBTITLE#", Value: fmt.Sprintf("新的一天开始啦~您是第%d位起床的,昨晚睡了%d小时,奖励%d积分", n, hour/3600)},
+				{Key: "#METASUBTITLE#", Value: msg},
+				{Key: "#METACOVER#", Value: config.AppConfig.MsgUrl + "?action=images&name=getup.jpg"},
+			},
+		})
+
+	} else {
+		_, err := c.svc.GetUpClockIn(ctx.Message.Guild(), ctx.Message.User())
+		if err != nil {
+			ctx.ReplyText(err.Error())
+			return
+		}
+		ctx.ReplyText("已经过了早起打卡时间了哦！")
 	}
-	ctx.ReplyArk(&dto.Ark{
-		TemplateID: 37,
-		KV: []*dto.ArkKV{
-			{Key: "#PROMPT#", Value: "打卡成功"},
-			{Key: "#METATITLE#", Value: "早起打卡成功"},
-			//{Key: "#METASUBTITLE#", Value: fmt.Sprintf("新的一天开始啦~您是第%d位起床的,昨晚睡了%d小时,奖励%d积分", n, hour/3600)},
-			{Key: "#METASUBTITLE#", Value: msg},
-			{Key: "#METACOVER#", Value: config.AppConfig.MsgUrl + "?action=images&name=getup.jpg"},
-		},
-	})
+
+	//msg, err := c.svc.GetUpClockIn(ctx.Message.Guild(), ctx.Message.User())
+	//if err != nil {
+	//	ctx.ReplyText(err.Error())
+	//	return
+	//}
+	//ctx.ReplyArk(&dto.Ark{
+	//	TemplateID: 37,
+	//	KV: []*dto.ArkKV{
+	//		{Key: "#PROMPT#", Value: "打卡成功"},
+	//		{Key: "#METATITLE#", Value: "早起打卡成功"},
+	//		//{Key: "#METASUBTITLE#", Value: fmt.Sprintf("新的一天开始啦~您是第%d位起床的,昨晚睡了%d小时,奖励%d积分", n, hour/3600)},
+	//		{Key: "#METASUBTITLE#", Value: msg},
+	//		{Key: "#METACOVER#", Value: config.AppConfig.MsgUrl + "?action=images&name=getup.jpg"},
+	//	},
+	//})
 }
 
 func (c *clockIn) clockIn(ctx *command.Context) {

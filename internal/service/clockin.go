@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/CodFrm/qqbot-official/pkg/command"
 	"strconv"
 	"time"
 
@@ -29,6 +30,10 @@ func NewClockIn(c *cron.Cron, user User) ClockIn {
 	if err != nil {
 		logrus.Fatalf("clockin task: %v", err)
 	}
+	_, errNoticeGetup := c.AddFunc("30 7 * * *", ret.noticeGetup)
+	if errNoticeGetup != nil {
+		logrus.Fatalf("clockin task: %v", errNoticeGetup)
+	}
 	return ret
 }
 
@@ -51,6 +56,11 @@ func (c *clockIn) notGetup() {
 			}
 		}
 	}
+}
+
+func (c *clockIn) noticeGetup() {
+	context := command.Context{}
+	context.SendText("早起打卡！")
 }
 
 func (c *clockIn) GetUpList(guild string) ([]string, error) {

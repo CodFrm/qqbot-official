@@ -53,6 +53,14 @@ func (c *Context) ReplyText(content string) {
 	}
 }
 
+func (c *Context) SendText(content string) {
+	if _, err := c.api.PostMessage(c.ctx, c.Message.Channel(), &dto.MessageToCreate{
+		Content: "<@!" + "全体成员" + ">" + content,
+	}); err != nil {
+		logrus.Errorf("post message: %v", err)
+	}
+}
+
 func (c *Context) Error(err error) {
 	logrus.Errorf("handle error: %+v", errors.WithStack(err))
 	//if _, err := c.api.PostMessage(c.ctx, c.Message.Channel(), &dto.MessageToCreate{
