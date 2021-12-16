@@ -56,7 +56,7 @@ func Get(key string) ([]byte, error) {
 	if err := db.View(func(tx *nutsdb.Tx) error {
 		e, err := tx.Get(MainBucket, []byte(key))
 		if err != nil {
-			if err == nutsdb.ErrKeyNotFound || err == nutsdb.ErrBucketNotFound {
+			if err == nutsdb.ErrKeyNotFound || err == nutsdb.ErrBucketNotFound || err == nutsdb.ErrNotFoundKey {
 				return nil
 			}
 			return err

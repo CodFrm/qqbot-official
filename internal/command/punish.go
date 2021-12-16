@@ -98,6 +98,9 @@ func (p *punish) punish(ctx *command.Context) {
 			} else {
 				member += utils2.At(g.OwnerID)
 			}
+			if err := ctx.OpenApi().DeleteGuildMember(context.Background(), ctx.Message.Guild(), user.ID); err != nil {
+				member += " " + err.Error()
+			}
 		default:
 			g, err := ctx.Guild()
 			if err != nil {
@@ -109,6 +112,9 @@ func (p *punish) punish(ctx *command.Context) {
 					member += "这人咋还在？请求最高权限:"
 				}
 				member += utils2.At(g.OwnerID)
+			}
+			if err := ctx.OpenApi().DeleteGuildMember(context.Background(), ctx.Message.Guild(), user.ID); err != nil {
+				member += " " + err.Error()
 			}
 		}
 		member += "\n"

@@ -21,7 +21,10 @@ func (u *user) setRole(c *gin.Context) {
 		guild := c.Query("guild")
 		user := c.Query("user")
 		role := c.Query("role")
-		return u.api.SetSignalRole(guild, user, dto.RoleID(role))
+		if err := u.api.SetSignalRole(guild, user, dto.RoleID(role)); err != nil {
+			return err
+		}
+		return "用户组切换成功"
 	})
 }
 

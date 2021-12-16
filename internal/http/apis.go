@@ -71,10 +71,12 @@ func handleResp(ctx *gin.Context, resp interface{}) {
 		err := resp.(error)
 		logrus.Errorf("%s - %s: %v", ctx.Request.RequestURI, ctx.ClientIP(), err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"code": -1, "msg": "系统错误",
+			"code": -1, "msg": "系统发生了一个错误,请联系管理员处理",
 		})
 	case string:
-
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": 0, "msg": resp,
+		})
 	default:
 		ctx.JSON(http.StatusOK, gin.H{
 			"code": 0, "msg": "ok", "data": resp,

@@ -26,12 +26,12 @@ func newUser(svc service.User, punish service.Punish) *user {
 func (i *user) info(c *command.Context) {
 	punishLevel, err := i.punish.PunishLevel(c.Message.Guild(), c.Message.User())
 	if err != nil {
-		c.ReplyText(err.Error())
+		c.ReplyText("警告:" + err.Error())
 		return
 	}
 	integral, err := i.svc.Integral(c.Message.Guild(), c.Message.User())
 	if err != nil {
-		c.ReplyText(err.Error())
+		c.ReplyText("积分:" + err.Error())
 		return
 	}
 	arkList := []*dto.ArkObj{
@@ -72,7 +72,7 @@ func (i *user) info(c *command.Context) {
 	}})
 	session := utils2.RandStringRunes(10)
 	if err := db.Put("session:"+session, []byte(c.Message.User()), 600); err != nil {
-		c.ReplyText(err.Error())
+		c.ReplyText("session:" + err.Error())
 		return
 	}
 	list, err := api.NewGuildApi(c.OpenApi()).UserGroup(c.Message.Guild())
