@@ -2,21 +2,35 @@ package command
 
 import (
 	"context"
+	"strings"
+	"time"
 
 	"github.com/CodFrm/qqbot-official/internal/config"
+	"github.com/CodFrm/qqbot-official/internal/middleware"
 	"github.com/CodFrm/qqbot-official/internal/service"
 	utils2 "github.com/CodFrm/qqbot-official/internal/utils"
 	"github.com/CodFrm/qqbot-official/pkg/command"
+	"github.com/robfig/cron/v3"
+	"github.com/sirupsen/logrus"
 	"github.com/tencent-connect/botgo/dto"
+	"github.com/tencent-connect/botgo/openapi"
 )
 
 type clockIn struct {
-	svc  service.ClockIn
-	user service.User
+	svc        service.ClockIn
+	channelSvc map[string]service.ChannelClockIn
+	user       service.User
 }
 
-func NewClockIn(svc service.ClockIn, user service.User) *clockIn {
-	return &clockIn{svc: svc, user: user}
+func NewClockIn(api openapi.OpenAPI, c *cron.Cron, svc service.ClockIn, user service.User) *clockIn {
+	return &clockIn{
+		svc:  svc,
+		user: user,
+		channelSvc: map[string]service.ChannelClockIn{
+			"学习": service.NewChannelClockIn(c, user, api, "learn", &service.ChannelClockInOptions{Integral: 4}),
+			"早起": service.NewChannelClockIn(c, user, api, "struggle", &service.ChannelClockInOptions{Integral: 3}),
+		},
+	}
 }
 
 func (c *clockIn) sleep(ctx *command.Context) {
@@ -76,11 +90,96 @@ func (c *clockIn) getUpList(ctx *command.Context) {
 	ctx.ReplyText(msg)
 }
 
+func (c *clockIn) setNoticeChannel(ctx *command.Context) {
+	svc, ok := c.channelSvc[ctx.Param("[功能]")]
+	if !ok {
+		ctx.ReplyText("没有对应的功能")
+		return
+	}
+	if err := svc.SetNotice(ctx.Message.Guild(), ctx.Message.Channel(), strings.ReplaceAll(ctx.Param("[时间]"), "-", " "), ctx.Param("[标题]"), ctx.Param("[内容]")); err != nil {
+		ctx.ReplyText(err.Error())
+		return
+	}
+	ctx.ReplyText("设置成功")
+}
+
+func (c *clockIn) setClockChannel(ctx *command.Context) {
+	svc, ok := c.channelSvc[ctx.Param("[功能]")]
+	if !ok {
+		ctx.ReplyText("没有对应的功能")
+		return
+	}
+	if err := svc.SetClock(ctx.Message.Guild(), ctx.Message.Channel()); err != nil {
+		ctx.ReplyText(err.Error())
+		return
+	}
+	ctx.ReplyText("设置成功")
+}
+
+func (c *clockIn) struggle(ctx *command.Context) {
+	svc := c.channelSvc["早起"]
+	now := time.Now()
+	if !(now.Hour() == 7 && now.Minute() > 30) {
+		ctx.ReplyText("请在7:30-8:00之间打卡")
+		return
+	}
+	if err := svc.ClockIn(ctx.Message.Guild(), ctx.Message.User()); err != nil {
+		ctx.ReplyText(err.Error())
+		return
+	}
+	ctx.ReplyText("早八人打卡成功,+3积分")
+}
+
+func (c *clockIn) learn(ctx *command.Context) {
+	svc := c.channelSvc["学习"]
+	if err := svc.ClockIn(ctx.Message.Guild(), ctx.Message.User()); err != nil {
+		ctx.ReplyText(err.Error())
+		return
+	}
+	ctx.ReplyText("学习打卡成功,+4积分")
+}
+
+func (c *clockIn) isLearn(ctx *command.Context) {
+	svc := c.channelSvc["学习"]
+	ok, err := svc.IsClock(ctx.Message.Guild(), ctx.Message.User())
+	if err != nil {
+		ctx.ReplyText(err.Error())
+		return
+	}
+	if ok {
+		ctx.ReplyText("已经打开过卡了,+4积分")
+		return
+	}
+	ctx.ReplyText("暂未打卡,请分享学习软件进行打卡")
+}
+
 func (c *clockIn) Register(ctx context.Context, cmd *command.Command) {
 	cg := cmd.Group(command.AtMe())
 	cg.Match("早睡打卡", c.sleep)
 	cg.Match("早起打卡", c.getUp)
 	cg.Match("打卡耻辱榜", c.getUpList)
+	cg.Match("早八人打卡", c.struggle)
+	cg.Match("学习打卡", c.isLearn)
+	cg.Match("打卡", c.clockIn)
+	cmd.Group(func(ctx *command.Context) {
+		// 检测分享打卡
+		// 直接文本判断
+		if !(strings.HasPrefix(ctx.Message.Content, "[分享]我已经在百词斩上坚持了")) {
+			ctx.Abort()
+		}
+	}, c.learn)
 
-	cg.Match("\\s打卡$", c.clockIn)
+	//NOTE: 后续可能调整为只允许频道主
+	var admin = middleware.Member(func(m *dto.Member) (bool, error) {
+		logrus.Infof("user: %v role: %v", m.Nick, m.Roles)
+		for _, v := range m.Roles {
+			if v == "4" || v == "2" || v == "5" {
+				return true, nil
+			}
+		}
+		return false, nil
+	})
+
+	cg.Match("设置通知频道 [功能] [时间] [标题] [文案]", admin, c.setNoticeChannel)
+	cg.Match("设置打卡频道 [功能]", admin, c.setClockChannel)
 }

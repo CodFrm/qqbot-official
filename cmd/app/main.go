@@ -40,7 +40,7 @@ func main() {
 
 	command := command.NewCommand(me, api)
 
-	command2.InitCommand(command)
+	command2.InitCommand(command, api)
 
 	// 监听哪类事件就需要实现哪类的 handler，定义：websocket/event_handler.go
 	var message websocket.MessageEventHandler = func(event *dto.WSPayload, data *dto.WSMessageData) error {
