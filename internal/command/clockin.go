@@ -96,7 +96,7 @@ func (c *clockIn) setNoticeChannel(ctx *command.Context) {
 		ctx.ReplyText("没有对应的功能")
 		return
 	}
-	if err := svc.SetNotice(ctx.Message.Guild(), ctx.Message.Channel(), strings.ReplaceAll(ctx.Param("[时间]"), "-", " "), ctx.Param("[标题]"), ctx.Param("[内容]")); err != nil {
+	if err := svc.SetNotice(ctx.Message.Guild(), ctx.Message.Channel(), strings.ReplaceAll(ctx.Param("[时间]"), "-", " "), ctx.Param("[标题]"), ctx.Param("[文案]")); err != nil {
 		ctx.ReplyText(err.Error())
 		return
 	}

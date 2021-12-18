@@ -189,12 +189,11 @@ type ChannelClockInOptions struct {
 
 func NewChannelClockIn(c *cron.Cron, user User, api openapi.OpenAPI, feat string, opts *ChannelClockInOptions) ChannelClockIn {
 	ret := &channelClockIn{
-		api:     api,
-		cron:    c,
-		user:    user,
-		feat:    feat,
-		opts:    opts,
-		oldCron: make([]cron.EntryID, 0),
+		api:  api,
+		cron: c,
+		user: user,
+		feat: feat,
+		opts: opts,
 	}
 	if err := ret.cronNotice(); err != nil {
 		logrus.Errorf("cron notice: %v", err)
@@ -218,6 +217,14 @@ func (c *channelClockIn) cronNotice() error {
 			logrus.Errorf("notice channel: %v", err)
 			continue
 		}
+		clock, err := db.Get("clockin:notice:clock:" + c.feat + ":" + string(v))
+		if err != nil {
+			logrus.Errorf("notice channel: %v", err)
+			continue
+		}
+		if clock == nil {
+			clock = channel
+		}
 		cron, err := db.Get("clockin:notice:cron:" + c.feat + ":" + string(v))
 		if err != nil {
 			logrus.Errorf("notice cron: %v", err)
@@ -233,7 +240,7 @@ func (c *channelClockIn) cronNotice() error {
 			logrus.Errorf("notice content: %v", err)
 			continue
 		}
-		if channel == nil || cron == nil || content == nil || title == nil {
+		if channel == nil || cron == nil || content == nil || title == nil || clock == nil {
 			continue
 		}
 		e, err := c.cron.AddFunc(string(cron), func() {
@@ -251,7 +258,7 @@ func (c *channelClockIn) cronNotice() error {
 						Value: string(title),
 					}, {
 						Key:   "#METADESC#",
-						Value: strings.ReplaceAll(string(content), "{channel}", "<#"+string(channel)+">"),
+						Value: strings.ReplaceAll(string(content), "{channel}", "<#"+string(clock)+">"),
 					}},
 				},
 			})
@@ -318,7 +325,7 @@ func (c *channelClockIn) SetNotice(guild, channel, cron, title, content string) 
 	if err := db.Put("clockin:notice:content:"+c.feat+":"+guild, []byte(content), 0); err != nil {
 		return err
 	}
-	return nil
+	return c.cronNotice()
 }
 
 func (c *channelClockIn) SetClock(guild, channel string) error {

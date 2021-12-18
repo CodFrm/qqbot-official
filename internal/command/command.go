@@ -33,4 +33,6 @@ func InitCommand(command *command.Command, api openapi.OpenAPI) {
 		NewClockIn(api, c, clockinSvc, userSvc),
 		NewUtils(),
 	)
+
+	c.Start()
 }
