@@ -163,8 +163,12 @@ func (c *clockIn) Register(ctx context.Context, cmd *command.Command) {
 	cg.Match("打卡", c.clockIn)
 	cmd.Group(func(ctx *command.Context) {
 		// 检测分享打卡
-		// 直接文本判断
-		if !(strings.HasPrefix(ctx.Message.Content, "[分享]我已经在百词斩上坚持了")) {
+		if !strings.HasPrefix(ctx.Message.Content, "[分享]") {
+			ctx.Abort()
+			return
+		}
+		if !(strings.HasSuffix(ctx.Message.Content, "来自: 百词斩") ||
+			strings.HasSuffix(ctx.Message.Content, "来自: 墨墨背单词")) {
 			ctx.Abort()
 		}
 	}, c.learn)
