@@ -10,7 +10,7 @@ type HandlerFunc func(ctx *Context)
 func Match(command string) HandlerFunc {
 	m := regexp.MustCompile("\\[(.+?)\\]")
 	var paramName []string
-	regexCmd := regexp.MustCompile("(^|\\s)" + m.ReplaceAllStringFunc(command, func(s string) string {
+	regexCmd := regexp.MustCompile("(^|\\s|>)" + m.ReplaceAllStringFunc(command, func(s string) string {
 		if len(s) == 0 {
 			return ""
 		}

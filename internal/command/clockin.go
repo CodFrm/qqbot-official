@@ -154,7 +154,7 @@ func (c *clockIn) isLearn(ctx *command.Context) {
 }
 
 func (c *clockIn) Register(ctx context.Context, cmd *command.Command) {
-	cg := cmd.Group(command.AtMe())
+	cg := cmd.Group()
 	cg.Match("早睡打卡", c.sleep)
 	cg.Match("早起打卡", c.getUp)
 	cg.Match("打卡耻辱榜", c.getUpList)

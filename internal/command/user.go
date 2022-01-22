@@ -111,6 +111,6 @@ func (i *user) info(c *command.Context) {
 }
 
 func (i *user) Register(ctx context.Context, cmd *command.Command) {
-	cg := cmd.Group(command.AtMe())
+	cg := cmd.Group()
 	cg.Match("我的信息", i.info)
 }

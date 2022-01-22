@@ -16,7 +16,7 @@ func NewUtils() *utils {
 }
 
 func (u *utils) Register(ctx context.Context, cmd *command.Command) {
-	cmd.AtMeMatch("摇色子|摇骰子", func(ctx *command.Context) {
+	cmd.Match("摇色子|摇骰子", func(ctx *command.Context) {
 		ctx.ReplyText(fmt.Sprintf("%v", rand.Int31n(6)+1))
 	})
 }

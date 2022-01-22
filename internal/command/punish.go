@@ -132,5 +132,5 @@ func (p *punish) Register(ctx context.Context, cmd *command.Command) {
 		}
 		return false, nil
 	}))
-	cg.AtMeMatch("警告", p.punish)
+	cg.Match("警告", p.punish)
 }
