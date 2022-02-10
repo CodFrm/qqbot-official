@@ -91,14 +91,14 @@ func (p *punish) punish(ctx *command.Context) {
 				member += " " + err.Error()
 			}
 		case 4:
-			member += "拉黑此人(暂时需要管理员手动操作拉黑)"
+			member += "拉黑此人并通知频道主"
 			g, err := ctx.Guild()
 			if err != nil {
 				member += " " + err.Error()
 			} else {
 				member += utils2.At(g.OwnerID)
 			}
-			if err := ctx.OpenApi().DeleteGuildMember(context.Background(), ctx.Message.Guild(), user.ID); err != nil {
+			if err := ctx.OpenApi().DeleteGuildMember(context.Background(), ctx.Message.Guild(), user.ID, dto.WithAddBlackList(true)); err != nil {
 				member += " " + err.Error()
 			}
 		default:
@@ -107,14 +107,14 @@ func (p *punish) punish(ctx *command.Context) {
 				member += err.Error()
 			} else {
 				if g.OwnerID == user.ID {
-					member += "这人咋还在？请求最高权限:"
+					member += "堂下和人告本官？" + utils2.At(g.OwnerID)
 				} else {
 					member += "这人咋还在？请求最高权限:"
+					member += utils2.At(g.OwnerID)
+					if err := ctx.OpenApi().DeleteGuildMember(context.Background(), ctx.Message.Guild(), user.ID, dto.WithAddBlackList(true)); err != nil {
+						member += " " + err.Error()
+					}
 				}
-				member += utils2.At(g.OwnerID)
-			}
-			if err := ctx.OpenApi().DeleteGuildMember(context.Background(), ctx.Message.Guild(), user.ID); err != nil {
-				member += " " + err.Error()
 			}
 		}
 		member += "\n"

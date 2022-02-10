@@ -8,7 +8,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.8.1
-	github.com/tencent-connect/botgo v0.0.0-20220121141057-f9828ae6d662
+	github.com/stretchr/testify v1.7.0
+	github.com/tencent-connect/botgo v0.0.0-20220202081149-dd301b3eb61e
 	github.com/xujiajun/nutsdb v0.6.0
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 )

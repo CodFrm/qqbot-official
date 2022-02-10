@@ -323,8 +323,8 @@ github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5Cc
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/templexxx/cpufeat v0.0.0-20180724012125-cef66df7f161/go.mod h1:wM7WEvslTq+iOEAMDLSzhVuOt5BRZ05WirO+b09GHQU=
 github.com/templexxx/xor v0.0.0-20181023030647-4e92f724b73b/go.mod h1:5XA7W9S6mni3h5uvOC75dA3m9CCCaS83lltmc0ukdi4=
-github.com/tencent-connect/botgo v0.0.0-20220121141057-f9828ae6d662 h1:8qPYKSwQHakeeyMcFqdKkNwjZzJYK66kdVHO4C0/azY=
-github.com/tencent-connect/botgo v0.0.0-20220121141057-f9828ae6d662/go.mod h1:+++Vgx3ai3lYpg1N+32IMVn0KiXfbxT7dXzoRnLq7OM=
+github.com/tencent-connect/botgo v0.0.0-20220202081149-dd301b3eb61e h1:op8C+xpEG95kxn/2CP/6cz35IsjKVL0HALg4zjSLBYU=
+github.com/tencent-connect/botgo v0.0.0-20220202081149-dd301b3eb61e/go.mod h1:+++Vgx3ai3lYpg1N+32IMVn0KiXfbxT7dXzoRnLq7OM=
 github.com/tidwall/gjson v1.9.3 h1:hqzS9wAHMO+KVBBkLxYdkEeeFHuqr95GfClRLKlgK0E=
 github.com/tidwall/gjson v1.9.3/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
 github.com/tidwall/match v1.1.1 h1:+Ho715JplO36QYgwN9PGYNhgZvoUSc9X2c80KVTi+GA=

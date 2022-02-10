@@ -147,7 +147,7 @@ func (c *clockIn) isLearn(ctx *command.Context) {
 		return
 	}
 	if ok {
-		ctx.ReplyText("已经打开过卡了,+4积分")
+		ctx.ReplyText("已经打过卡了,+4积分")
 		return
 	}
 	ctx.ReplyText("暂未打卡,请分享学习软件进行打卡")
